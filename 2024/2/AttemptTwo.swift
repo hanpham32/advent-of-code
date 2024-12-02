@@ -1,19 +1,20 @@
 import Foundation
 
-// Solution
+// MARK: - Solution Object
+
 class Solution {
     let input: String
     var unsafePart1: Int
     var unsafePart2: Int
 
-    // constructor
     init(input: String) {
         self.input = input
-        self.unsafePart1 = 0
-        self.unsafePart2 = 0
+        unsafePart1 = 0
+        unsafePart2 = 0
     }
 
-    // Part 1
+    // MARK: - Part 1
+
     func solvePart1() -> Int {
         let reports = input.split(separator: "\n").map(String.init)
         let reportsN = reports.count
@@ -29,34 +30,54 @@ class Solution {
                     } else if levelDifference < 0 {
                         tracker[1] = true
                     } else {
-                        self.unsafePart1 += 1
+                        unsafePart1 += 1
                         break
                     }
                     // if the level is both increasing and decreasing
                     // then it is not safe => break
                     if tracker[0] == true && tracker[1] == true {
-                        self.unsafePart1 += 1
+                        unsafePart1 += 1
                         break
                     } else {
                         // check if the abs difference is more than 3
                         let levelAbsDifference = abs(firstNum - secondNum)
                         if levelAbsDifference > 3 {
-                            self.unsafePart1 += 1
+                            unsafePart1 += 1
                             break
                         }
                     }
                 }
             }
         }
-        print("Safe: \(reportsN - self.unsafePart1)")
-        return reportsN - self.unsafePart1
+        print("Safe: \(reportsN - unsafePart1)")
+        return reportsN - unsafePart1
     }
 
-    //  Part 2
+    // MARK: - Part 2
+    func isSafe(_ levels: [Int]) -> Bool {
+        var isIncreasing = true
+        var isDecreasing = true
+
+        for i in 0..<levels.count - 1 {
+            let diff = levels[i + 1] - levels[i]
+            if diff < 1 || diff > 3 {return false}
+            if diff > 0 { isDecreasing = false }
+            if diff < 0 { isIncreasing = false }
+        }
+
+        return isDecreasing || isIncreasing
+    }
+
     func solvePart2() -> Int {
         let reports = input.split(separator: "\n").map(String.init)
         let reportsN = reports.count
+        var safeCount = 0
+
         for report in reports {
+            if isSafe(report) {
+                safeCount += 1
+                continue
+            }
             var tracker: [Bool] = [false, false, false]
             var problemDampenerUsed = false
             let levels: [Substring] = report.split(separator: " ")
@@ -70,7 +91,7 @@ class Solution {
                         tracker[1] = true
                     } else {
                         if problemDampenerUsed {
-                            self.unsafePart2 += 1
+                            unsafePart2 += 1
                             break
                         }
                         problemDampenerUsed = true
@@ -80,7 +101,7 @@ class Solution {
                     // then it is not safe => break
                     if tracker[0] == true && tracker[1] == true {
                         if problemDampenerUsed {
-                            self.unsafePart2 += 1
+                            unsafePart2 += 1
                             break
                         }
                         problemDampenerUsed = true
@@ -89,7 +110,7 @@ class Solution {
                         // check if the abs difference is more than 3
                         let levelAbsDifference = abs(firstNum - secondNum)
                         if levelAbsDifference > 3 && problemDampenerUsed {
-                            self.unsafePart2 += 1
+                            unsafePart2 += 1
                             break
                         } else if levelAbsDifference > 3 && !problemDampenerUsed {
                             problemDampenerUsed = true
@@ -99,15 +120,16 @@ class Solution {
                 }
             }
         }
-        print("Safe: \(reportsN - self.unsafePart2)")
-        return reportsN - self.unsafePart2
+        print("Safe: \(reportsN - unsafePart2)")
+        return reportsN - unsafePart2
     }
 }
 
-/// Reads contents of a file
-/// - Returns: Contents of the file as a string, or empty if reading fails
-func readInput(from fileName: String) -> String {
-    let fileURL = URL(fileURLWithPath: fileName)
+// MARK: - File Reading
+
+func readInput(isTest: Bool = false) -> String {
+    let filename = isTest ? "test" : "input"
+    let fileURL = URL(fileURLWithPath: filename + ".txt")
 
     do {
         return try String(contentsOf: fileURL, encoding: .utf8)
@@ -117,19 +139,33 @@ func readInput(from fileName: String) -> String {
     }
 }
 
+// MARK: - Testing
+
+func runTests() {
+    let testInput = readInput(isTest: true)
+    let solution = Solution(input: testInput)
+
+    // Add your test assertions here
+    let part1Result = solution.solvePart1()
+    print("Part 1 Test Result: \(part1Result)")
+    // assert(part1Result == expectedPart1Result, "Part 1 test failed")
+
+    let part2Result = solution.solvePart2()
+    print("Part 2 Test Result: \(part2Result)")
+    // assert(part2Result == expectedPart2Result, "Part 2 test failed")
+}
+
+// MARK: - Main
+
 func main() {
-    // get command line args
-    let args = CommandLine.arguments
-    guard args.count > 1 else {
-        print("Usage: swift solution.swift <input_file>")
-        return
-    }
+    // First run tests
+    print("Running tests...")
+    runTests()
+    print("Tests completed!")
 
-    let inputFile = args[1]
-    print("Using input file: \(inputFile)")
-
-    // run solutions
-    let input = readInput(from: inputFile)
+    // Then solve actual puzzle
+    print("\nSolving puzzle...")
+    let input = readInput()
     let solution = Solution(input: input)
 
     let part1 = solution.solvePart1()
@@ -139,5 +175,4 @@ func main() {
     print("Part 2 Solution: \(part2)")
 }
 
-// run the program
 main()
