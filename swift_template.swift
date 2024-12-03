@@ -22,10 +22,9 @@ class Solution {
 }
 
 // MARK: - File Reading
-func readInput(isTest: Bool = false) -> String {
-    let filename = isTest ? "test" : "input"
-    let fileURL = URL(fileURLWithPath: filename + ".txt")
-    
+func readInput(from fileName: String) -> String {
+    let fileURL = URL(fileURLWithPath: fileName)
+
     do {
         return try String(contentsOf: fileURL, encoding: .utf8)
     } catch {
@@ -34,36 +33,25 @@ func readInput(isTest: Bool = false) -> String {
     }
 }
 
-// MARK: - Testing
-func runTests() {
-    let testInput = readInput(isTest: true)
-    let solution = Solution(input: testInput)
-    
-    // Add your test assertions here
-    let part1Result = solution.solvePart1()
-    print("Part 1 Test Result: \(part1Result)")
-    // assert(part1Result == expectedPart1Result, "Part 1 test failed")
-    
-    let part2Result = solution.solvePart2()
-    print("Part 2 Test Result: \(part2Result)")
-    // assert(part2Result == expectedPart2Result, "Part 2 test failed")
-}
-
 // MARK: - Main
 func main() {
-    // First run tests
-    print("Running tests...")
-    runTests()
-    print("Tests completed!")
-    
-    // Then solve actual puzzle
-    print("\nSolving puzzle...")
-    let input = readInput()
+    // get command line args
+    let args = CommandLine.arguments
+    guard args.count > 1 else {
+        print("Usage: swift solution.swift <input_file>")
+        return
+    }
+
+    let inputFile = args[1]
+    print("Using input file: \(inputFile)")
+
+    // run solutions
+    let input = readInput(from: inputFile)
     let solution = Solution(input: input)
-    
+
     let part1 = solution.solvePart1()
     print("Part 1 Solution: \(part1)")
-    
+
     let part2 = solution.solvePart2()
     print("Part 2 Solution: \(part2)")
 }
